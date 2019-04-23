@@ -117,7 +117,8 @@ class CloudWatch extends AbstractProcessingHandler
         $batchSize = 10000,
         array $tags = [],
         $level = Logger::DEBUG,
-        $bubble = true
+        $bubble = true,
+        $sendImmediately = false
     ) {
         if ($batchSize > 10000) {
             throw new \InvalidArgumentException('Batch size can not be greater than 10000');
@@ -129,6 +130,7 @@ class CloudWatch extends AbstractProcessingHandler
         $this->retention = $retention;
         $this->batchSize = $batchSize;
         $this->tags = $tags;
+        $this->sendImmediately = $sendImmediately;
 
         parent::__construct($level, $bubble);
 
@@ -143,7 +145,9 @@ class CloudWatch extends AbstractProcessingHandler
         $records = $this->formatRecords($record);
 
         foreach ($records as $record) {
-            if ($this->currentDataAmount + $this->getMessageSize($record) >= $this->dataAmountLimit ||
+            if ($this->sendImmediately) {
+                $this->send([$record]);
+            } elseif ($this->currentDataAmount + $this->getMessageSize($record) >= $this->dataAmountLimit ||
                 count($this->buffer) >= $this->batchSize
             ) {
                 $this->flushBuffer();

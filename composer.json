@@ -1,5 +1,5 @@
 {
-    "name": "maxbanton/cwh",
+    "name": "friendemic/aws-logger",
     "type": "library",
     "description": "AWS CloudWatch Handler for Monolog library",
     "keywords": [
